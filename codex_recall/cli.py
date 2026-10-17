@@ -17,7 +17,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--db", type=Path, default=None, help="SQLite index path (default: ~/.codex-recall/index.sqlite3)")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    index = sub.add_parser("index", help="Index or refresh local Codex session JSONL files")
+    index = sub.add_parser("index", help="Index Codex CLI JSONL and desktop app history")
     index.add_argument("--home", type=Path, default=None, help="Codex home (default: CODEX_HOME or ~/.codex)")
     index.add_argument("--force", action="store_true", help="Reindex every session file")
 
