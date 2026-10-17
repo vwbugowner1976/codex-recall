@@ -38,7 +38,7 @@ def run_server(db_path: Path | None = None, home: Path | None = None) -> None:
         if not resolved_home.is_dir():
             return f"Codex home not found: {resolved_home}. Set CODEX_HOME or configure the server with the correct home."
         with RecallIndex(db_path) as index:
-            result = index.index(home=resolved_home)
+            result = index.index(home=resolved_home, force=force)
             stats = index.stats()
         return (
             f"Scanned {result.scanned_files}; indexed {result.indexed_files} files "
