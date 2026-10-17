@@ -28,7 +28,7 @@ def make_desktop_db(home: Path) -> Path:
             ("thread-a", "turn-1", "item-1", 1, 1792195200000,
              {"type": "userMessage", "id": "item-1",
               "content": [{"type": "text", "text":
-                  "Find the WS2812 driver. Attached file: C:\\Users\\G9\\.codex-remote-attachments\\abc\\secretfilename.txt"}]},
+                  "Find the WS2812 driver. Attached files: C:\\Users\\G9\\.codex\\codex-remote-attachments\\abc\\secretfilename.txt and C:\\Users\\G9\\.codex\\attachments\\abc\\pasted-text.txt"}],
              "userMessage"),
             ("thread-a", "turn-1", "item-2", 2, 1792195201000,
              {"type": "agentMessage", "id": "item-2",
@@ -64,6 +64,8 @@ def test_import_desktop_history_and_skip_reasoning(tmp_path: Path):
         assert len(index.search("buffer")) == 1
         assert not index.search("private reasoning")
         assert not index.search("secretfilename")
+        assert not index.search("pasted-text")
+        assert not index.search("attachments")
         assert index.stats()["sessions"] == 1
         assert index.stats()["messages"] == 2
 
