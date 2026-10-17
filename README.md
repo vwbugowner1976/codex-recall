@@ -32,7 +32,7 @@ codex-recall search "WS2812"
 git clone https://github.com/vwbugowner1976/codex-recall.git
 cd codex-recall
 py -3.11 -m venv .venv
-.\\.venv\\Scripts\\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 python -m pip install -e .
 codex-recall index
 codex-recall search "WS2812"
@@ -60,9 +60,9 @@ codex-recall mcp [--home PATH]
 By default Codex Recall reads from:
 
 - macOS / Linux: ~/.codex/sessions/
-- Windows: %USERPROFILE%\\.codex\\sessions\\
+- Windows: %USERPROFILE%\.codex\sessions\
 
-If CODEX_HOME is set, that directory takes precedence. The index is stored separately at ~/.codex-recall/index.sqlite3 (Windows: %USERPROFILE%\\.codex-recall\\index.sqlite3). Set CODEX_RECALL_DB or pass --db PATH to change it.
+If CODEX_HOME is set, that directory takes precedence. The index is stored separately at ~/.codex-recall/index.sqlite3 (Windows: %USERPROFILE%\.codex-recall\index.sqlite3). Set CODEX_RECALL_DB or pass --db PATH to change it.
 
 ## Optional MCP integration
 
