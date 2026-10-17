@@ -19,10 +19,11 @@ from .core import RecallIndex
 
 # Codex may represent an attached file as text containing its private local
 # cache path. Avoid making those generated paths searchable or exposing them
-# in snippets. This intentionally targets the app's attachment-cache folder,
-# not ordinary paths that users may have discussed in a conversation.
+# in snippets. Desktop versions have used both "attachments" and
+# "codex-remote-attachments" beneath the user's .codex directory. Keep the
+# older top-level .codex-remote-attachments form covered as well.
 _ATTACHMENT_PATH_RE = re.compile(
-    r"""(?i)(?:[A-Z]:[\\/][^\s"'<>]*?\.codex-remote-attachments[\\/][^\s"'<>]+|/(?:Users|home)/[^\s"'<>]*?\.codex-remote-attachments/[^\s"'<>]+)"""
+    r"""(?i)(?:[A-Z]:[\\/][^\s"'<>]*?\.codex[\\/](?:codex-remote-attachments|attachments)[\\/][^\s"'<>]+|/(?:Users|home)/[^\s"'<>]*?\.codex/(?:codex-remote-attachments|attachments)/[^\s"'<>]+|[A-Z]:[\\/][^\s"'<>]*?\.codex-remote-attachments[\\/][^\s"'<>]+|/(?:Users|home)/[^\s"'<>]*?\.codex-remote-attachments/[^\s"'<>]+)"""
 )
 
 
