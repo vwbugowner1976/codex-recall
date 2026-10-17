@@ -32,7 +32,7 @@ codex-recall search "WS2812"
 git clone https://github.com/vwbugowner1976/codex-recall.git
 cd codex-recall
 py -3.11 -m venv .venv
-.\.venv\Scripts\Activate.ps1
+.\\.venv\\Scripts\\Activate.ps1
 python -m pip install --upgrade pip setuptools
 python -m pip install -e .
 codex-recall index
@@ -61,9 +61,10 @@ codex-recall mcp [--home PATH]
 By default Codex Recall reads from:
 
 - macOS / Linux: ~/.codex/sessions/
-- Windows: %USERPROFILE%\.codex\sessions\
+- Windows: %USERPROFILE%\\.codex\\sessions\\
+- Codex desktop app history: `~/.codex/thread_history_1.sqlite` (Windows: `%USERPROFILE%\\.codex\\thread_history_1.sqlite`)
 
-If CODEX_HOME is set, that directory takes precedence. The index is stored separately at ~/.codex-recall/index.sqlite3 (Windows: %USERPROFILE%\.codex-recall\index.sqlite3). Set CODEX_RECALL_DB or pass --db PATH to change it.
+If CODEX_HOME is set, that directory takes precedence. The index is stored separately at ~/.codex-recall/index.sqlite3 (Windows: %USERPROFILE%\\.codex-recall\\index.sqlite3). Set CODEX_RECALL_DB or pass --db PATH to change it.
 
 ## Optional MCP integration
 
@@ -84,7 +85,8 @@ Exact Codex MCP configuration can vary by CLI version and installation method; s
 ## Privacy and safety
 
 - Source JSONL files and the desktop app SQLite database are opened read-only; the indexer never edits or deletes the originals.
-- Desktop import includes user and assistant text messages only. Reasoning, command output, file diffs, and tool-call payloads are excluded by default.
+- Desktop import indexes user and assistant text messages only. Reasoning, command output, file diffs, and tool-call payloads are excluded.
+- Generated paths inside Codex's `.codex-remote-attachments` cache are redacted before desktop text is indexed. Other sensitive text or ordinary paths that appear in conversation text may still be searchable.
 - The desktop app's SQLite schema is an implementation detail and may change in future app versions; this importer may need maintenance.
 - Search index files are stored outside this repository by default.
 - No cloud service or telemetry is used by this tool.
@@ -93,7 +95,7 @@ Exact Codex MCP configuration can vary by CLI version and installation method; s
 
 ## Development
 
-~~~bash
+~~~
 python -m pip install -e ".[dev]"
 python -m pytest
 ~~~
