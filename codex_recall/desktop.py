@@ -7,6 +7,7 @@ commands, diffs, and attachments are intentionally excluded.
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -14,6 +15,15 @@ from pathlib import Path
 from typing import Any
 
 from .core import RecallIndex
+
+
+# Codex may represent an attached file as text containing its private local
+# cache path. Avoid making those generated paths searchable or exposing them
+# in snippets. This intentionally targets the app's attachment-cache folder,
+# not ordinary paths that users may have discussed in a conversation.
+_ATTACHMENT_PATH_RE = re.compile(
+    r"""(?i)(?:[A-Z]:[\\/][^\s"'<>]*?\.codex-remote-attachments[\\/][^\s"'<>]+|/(?:Users|home)/[^\s"'<>]*?\.codex-remote-attachments/[^\s"'<>]+)"""
+)
 
 
 @dataclass
@@ -48,6 +58,8 @@ def _extract_text(item_type: str, raw: str | bytes) -> str | None:
     else:
         return None
 
+    # Remove generated attachment-cache paths before indexing/search snippets.
+    text = _ATTACHMENT_PATH_RE.sub("[file path omitted]", text)
     return text if text else None
 
 
@@ -86,12 +98,12 @@ def index_desktop_history(index: RecallIndex, home: Path) -> DesktopIndexResult:
                 WHERE item_type IN ('userMessage', 'agentMessage')
                 ORDER BY thread_id, rollout_ordinal
             """).fetchall()
+        db_stat = db_path.stat()
+        source_prefix = f"codex-desktop:{db_path.resolve()}#"
     except (sqlite3.Error, OSError, ValueError):
         result.errors = 1
         return result
 
-    db_stat = db_path.stat()
-    source_prefix = f"codex-desktop:{db_path.resolve()}#"
     grouped: dict[str, list[tuple[str, str | None, str]]] = {}
 
     for thread_id, _ordinal, created_at_ms, item_type, raw in rows:
