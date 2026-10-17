@@ -4,6 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .core import RecallIndex, codex_home
+from .desktop import index_desktop_history
 
 
 def run_server(db_path: Path | None = None, home: Path | None = None) -> None:
@@ -39,11 +40,17 @@ def run_server(db_path: Path | None = None, home: Path | None = None) -> None:
             return f"Codex home not found: {resolved_home}. Set CODEX_HOME or configure the server with the correct home."
         with RecallIndex(db_path) as index:
             result = index.index(home=resolved_home, force=force)
+            desktop = index_desktop_history(index, resolved_home)
             stats = index.stats()
+        desktop_summary = (
+            f"; desktop history {desktop.threads} threads / {desktop.messages} messages"
+            if desktop.available else ""
+        )
         return (
-            f"Scanned {result.scanned_files}; indexed {result.indexed_files} files "
-            f"and {result.indexed_messages} messages; unchanged {result.skipped_files}; "
-            f"errors {result.errors}. Local database: {stats['database']}"
+            f"Scanned {result.scanned_files} JSONL files; indexed {result.indexed_files} files "
+            f"and {result.indexed_messages} JSONL messages; unchanged {result.skipped_files}"
+            f"{desktop_summary}; errors {result.errors + desktop.errors}. "
+            f"Local database: {stats['database']}"
         )
 
     @server.tool()
