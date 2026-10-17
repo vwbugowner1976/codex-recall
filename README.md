@@ -1,15 +1,15 @@
 # Codex Recall
 
-**Local-first, cross-platform search for Codex CLI session history.**
+**Local-first, cross-platform search for Codex conversation history.**
 
-Codex Recall indexes the JSONL session transcripts saved by Codex CLI and makes them searchable from the terminal. It is designed for macOS, Windows, and Linux, and keeps both the index and session content on your computer.
+Codex Recall indexes Codex CLI JSONL transcripts and, when available, the Codex desktop app's local SQLite history. Search both from the terminal with SQLite FTS5. The index and imported conversation text stay on your computer.
 
 > **Status:** early development (0.1.0). The CLI index/search workflow is implemented; the optional MCP server is experimental.
 
 ## Requirements
 
 - Python 3.11+
-- Codex CLI with local session history
+- Codex CLI JSONL history and/or the Codex desktop app with local history
 - SQLite with FTS5 support (included in most standard Python builds)
 
 ## Quick start
@@ -32,7 +32,7 @@ codex-recall search "WS2812"
 git clone https://github.com/vwbugowner1976/codex-recall.git
 cd codex-recall
 py -3.11 -m venv .venv
-.\.venv\Scripts\Activate.ps1
+.\\.venv\\Scripts\\Activate.ps1
 python -m pip install --upgrade pip setuptools
 python -m pip install -e .
 codex-recall index
@@ -50,7 +50,7 @@ codex-recall stats
 codex-recall mcp [--home PATH]
 ~~~
 
-- **index** scans sessions/ and archived_sessions/ under your Codex home. Unchanged files are skipped; deleted files are removed from the index.
+- **index** scans sessions/ and archived_sessions/ JSONL files under your Codex home and imports `thread_history_1.sqlite` when the desktop app database is present. Desktop history is refreshed on each run; JSONL files that have not changed are skipped.
 - **search** uses SQLite FTS5 syntax. For multiple terms, try the command with the query "WS2812 driver". FTS5 supports quoted phrases and operators.
 - **stats** shows index counts and the database path.
 - **--force** reindexes all files.
@@ -61,9 +61,10 @@ codex-recall mcp [--home PATH]
 By default Codex Recall reads from:
 
 - macOS / Linux: ~/.codex/sessions/
-- Windows: %USERPROFILE%\.codex\sessions\
+- Windows: %USERPROFILE%\\.codex\\sessions\\
+- Codex desktop app history: `~/.codex/thread_history_1.sqlite` (Windows: `%USERPROFILE%\\.codex\\thread_history_1.sqlite`)
 
-If CODEX_HOME is set, that directory takes precedence. The index is stored separately at ~/.codex-recall/index.sqlite3 (Windows: %USERPROFILE%\.codex-recall\index.sqlite3). Set CODEX_RECALL_DB or pass --db PATH to change it.
+If CODEX_HOME is set, that directory takes precedence. The index is stored separately at ~/.codex-recall/index.sqlite3 (Windows: %USERPROFILE%\\.codex-recall\\index.sqlite3). Set CODEX_RECALL_DB or pass --db PATH to change it.
 
 ## Optional MCP integration
 
@@ -83,7 +84,10 @@ Exact Codex MCP configuration can vary by CLI version and installation method; s
 
 ## Privacy and safety
 
-- Session files are read-only; the indexer never edits or deletes the originals.
+- Source JSONL files and the desktop app SQLite database are opened read-only; the indexer never edits or deletes the originals.
+- Desktop import indexes user and assistant text messages only. Reasoning, command output, file diffs, and tool-call payloads are excluded.
+- Generated paths inside Codex's `.codex-remote-attachments` cache are redacted before desktop text is indexed. Other sensitive text or ordinary paths that appear in conversation text may still be searchable.
+- The desktop app's SQLite schema is an implementation detail and may change in future app versions; this importer may need maintenance.
 - Search index files are stored outside this repository by default.
 - No cloud service or telemetry is used by this tool.
 - Do not commit session JSONL files, the SQLite database, or secrets.
@@ -91,7 +95,7 @@ Exact Codex MCP configuration can vary by CLI version and installation method; s
 
 ## Development
 
-~~~bash
+~~~
 python -m pip install -e ".[dev]"
 python -m pytest
 ~~~

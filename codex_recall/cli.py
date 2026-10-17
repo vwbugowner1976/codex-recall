@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 from .core import RecallIndex, codex_home, default_db_path
+from .desktop import index_desktop_history
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -16,7 +17,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--db", type=Path, default=None, help="SQLite index path (default: ~/.codex-recall/index.sqlite3)")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    index = sub.add_parser("index", help="Index or refresh local Codex session JSONL files")
+    index = sub.add_parser("index", help="Index Codex CLI JSONL and desktop app history")
     index.add_argument("--home", type=Path, default=None, help="Codex home (default: CODEX_HOME or ~/.codex)")
     index.add_argument("--force", action="store_true", help="Reindex every session file")
 
@@ -54,13 +55,16 @@ def main(argv: list[str] | None = None) -> int:
                     print("Set CODEX_HOME or pass --home PATH.", file=sys.stderr)
                     return 1
                 result = index.index(home=home, force=args.force)
+                desktop = index_desktop_history(index, home)
                 print(f"Codex home: {home}")
                 print(f"Database:   {db_path}")
-                print(f"Scanned:    {result.scanned_files}")
-                print(f"Indexed:    {result.indexed_files} files / {result.indexed_messages} messages")
-                print(f"Unchanged:  {result.skipped_files}")
-                print(f"Errors:     {result.errors}")
-                return 1 if result.errors else 0
+                print(f"Scanned JSONL: {result.scanned_files}")
+                print(f"Indexed JSONL: {result.indexed_files} files / {result.indexed_messages} messages")
+                print(f"Unchanged JSONL: {result.skipped_files}")
+                if desktop.available:
+                    print(f"Desktop history: {desktop.threads} threads / {desktop.messages} messages")
+                print(f"Errors:     {result.errors + desktop.errors}")
+                return 1 if result.errors or desktop.errors else 0
 
             if args.command == "stats":
                 stats = index.stats()
