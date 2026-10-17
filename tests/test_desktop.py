@@ -64,7 +64,7 @@ def test_import_desktop_history_and_skip_reasoning(tmp_path: Path):
         assert len(index.search("buffer")) == 1
         assert not index.search("private reasoning")
         assert not index.search("secretfilename")
-        assert not index.search("pasted-text")
+        assert not index.search("pasted")
         assert not index.search("attachments")
         assert index.stats()["sessions"] == 1
         assert index.stats()["messages"] == 2
