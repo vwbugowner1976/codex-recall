@@ -33,6 +33,7 @@ git clone https://github.com/vwbugowner1976/codex-recall.git
 cd codex-recall
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip setuptools
 python -m pip install -e .
 codex-recall index
 codex-recall search "WS2812"
