@@ -237,6 +237,9 @@ class RecallIndex:
         # Remove index records for session files that have been deleted or moved.
         stale = set(known) - current_paths
         for source in stale:
+            # Keep records imported from the desktop app; they are not JSONL paths.
+            if source.startswith("codex-desktop:"):
+                continue
             with self.connection:
                 self.connection.execute("DELETE FROM messages WHERE source_path = ?", (source,))
                 self.connection.execute("DELETE FROM sessions WHERE source_path = ?", (source,))
